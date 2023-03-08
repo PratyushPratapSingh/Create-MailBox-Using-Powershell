@@ -1,0 +1,50 @@
+Create Mailbox User using Powershell
+March 8, 2023
+Creating new mailbox user is one of the important task for every Administrator either for actual new employee or for internal testing. You can use Exchange Management console to create new mailbox user, but it is a time consuming job if you want to create multiple AD users (bulk mailbox users). To overcome this, we can use Powershell Script to Create new AD User with mailbox.
+Before proceed, run the following command to enable Exchange cmdlets if you are working with Powershell console instead of Exchange Management Shell.
+
+Add-PSSnapin *Exchange*
+Summary
+Create New Mailbox User
+Enable Mailbox for existing AD User
+Create Bulk Mailbox AD Users from CSV file
+Enable Mailbox for Bulk AD Users from CSV file
+Create New Mailbox User
+We can use the Exchange Management Powershell cmdlet New-Mailbox to create new mailbox AD user. The following command creates the Active Directory user “Will Smith” in the TestOU, with a mailbox on the TestDBStore database.
+
+New-Mailbox -UserPrincipalName willsmith@testdomain.com -Alias 'WillSmith' -Database 'TestDBStore' -Name WillSmith –OrganizationalUnit TestOU -Password (ConvertTo-SecureString 'MyPassword123' -AsPlainText -Force) -FirstName Will -LastName Smith -DisplayName 'Will Smith' -ResetPasswordOnNextLogon $True
+Enable Mailbox for existing AD User
+We can create a mailbox for an existing Active Directory user using exchange powershell cmdlet Enable-Mailbox. The following powershell command creates mailbox for the existing AD user “Chris Jordan”.
+
+Enable-Mailbox -Identity:'ChrisJordan' -Alias:'ChrisJordan' -Database: 'TestDBStore'
+Create Bulk Mailbox AD Users from CSV file using Powershell
+1. Consider the CSV file MailboxUsers.csv which contains set of new mailbox ad users to create with the attributes name, alias, userPrincipalName, database, firstName, lastName, displayName and ParentOU.
+
+Create Bulk Mailbox AD Users from CSV file using Powershell
+2. Copy the below Powershell script and paste in Notepad file.
+3. Change the MailboxUsers.csv file path with your own csv file path.
+4. SaveAs the Notepad file with the extension .ps1 like Create-Bulk-Mailbox-AD-Users.ps1
+
+Import-Csv "C:\ScriptsMailboxUsers.csv" | ForEach-Object {
+New-Mailbox -UserPrincipalName $_.'userPrincipalName' -Alias $_.'alias' -Database $_.'database' -Name $_.'name' –OrganizationalUnit $_.'ParentOU' -Password (ConvertTo-SecureString 'MyPassword123' -AsPlainText -Force) -FirstName $_.'firstName' -LastName $_.'lastName' -DisplayName $_.'displayName' -ResetPasswordOnNextLogon $True }
+5. Now run the file Create-Bulk-Mailbox-AD-Users.ps1 in Powershell to create Bulk Active Directory users and Mailboxes from CSV file.
+
+Enable Mailbox for Bulk AD Users from CSV using Powershell
+1. Consider the CSV file ADUsers.CSV which contains set of existing AD users that we want to enable mailbox with the attributes name, alias and database.
+
+Create Mailbox for Bulk AD Users from CSV using Powershell
+2. Copy the below Powershell script and paste in Notepad file.
+3. Change the ADUsers.CSV file path with your own csv file path.
+4. SaveAs the Notepad file with the extension .ps1 like Create-Mailbox-for-Bulk-AD-Users.ps1
+
+Import-Csv "C:\ScriptsADUsers.csv" | ForEach-Object {
+Enable-Mailbox -Identity:$_.'name' -Alias:$_.'alias' -Database:$_.'database'
+}
+5. Now run the file Create-Mailbox-for-Bulk-AD-Users.ps1 in Powershell to create Bulk Active Directory users and Mailboxes from CSV file.
+
+Related Posts
+Create Office 365 Mailbox with Powershell
+Create Bulk Mailbox Users from CSV using Powershell
+Get Exchange Mailbox Features using Powershell
+Export Mailbox Size to CSV using Powershell Script
+How to map Mailbox object with AzureAD user object using Powershell
